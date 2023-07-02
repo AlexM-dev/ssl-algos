@@ -1,5 +1,4 @@
 import random
-
 import numpy as np
 import heapq
 import matplotlib.pyplot as plt
@@ -7,23 +6,14 @@ from scipy.interpolate import BSpline
 import time
 
 # Define the grid size and cell size
-grid_size = 500  # Total number of cells in each dimension
-cell_size = 1.0  # Size of each grid cell
-obstacle_radius = 50
+grid_size = 7500  # Total number of cells in each dimension
+cell_size = 0.001  # Size of each grid cell
+obstacle_radius = 500
 
+start_point = (0, 0)
+goal_point = (2000, 2000)
+obstacle_positions = [(2000, 2000), (5000, 5000), (3000, 4000), (4000, 6000)]
 
-def f():
-    return random.randint(2, grid_size - 2)
-
-
-# Define the starting point, goal point, and obstacle positions
-start_point = (f(), f())  # (x, y) coordinates
-goal_point = (f(), f())  # (x, y) coordinates
-
-num_of = random.randint(0, 20)
-obstacle_positions = []
-for i in range(num_of):
-    obstacle_positions.append((f(), f()))
 start_time = time.time()
 
 # Initialize the grid with default costs
@@ -70,6 +60,7 @@ def astar_algorithm():
 
     # Run the A* algorithm
     while open_set:
+
         # Pop the cell with the lowest cost from the open set
         current_cost, current_cell = heapq.heappop(open_set)
 
@@ -140,30 +131,6 @@ def smooth_path(path):
     return smoothed_path
 
 
-# Remove unnecessary intermediate points in the path
-def simplify_path(path):
-    simplified_path = [path[0]]
-    for i in range(1, len(path) - 1):
-        if not has_obstacle(path[i - 1], path[i + 1]):
-            simplified_path.append(path[i])
-    simplified_path.append(path[-1])
-
-    return simplified_path
-
-
-# Check if there is an obstacle between two points
-def has_obstacle(point1, point2):
-    x1, y1 = point1
-    x2, y2 = point2
-
-    for obstacle in obstacle_positions:
-        x, y = obstacle
-        if min(x1, x2) <= x <= max(x1, x2) and min(y1, y2) <= y <= max(y1, y2):
-            return True
-
-    return False
-
-
 # Visualize the environment and path
 def visualize_environment(path):
     # Create a grid of cells
@@ -178,17 +145,13 @@ def visualize_environment(path):
     # Plot the starting point, goal point, and robot position
     plt.plot(start_point[0], start_point[1], 'bo', markersize=8, label='Start')
     plt.plot(goal_point[0], goal_point[1], 'go', markersize=8, label='Goal')
-    # plt.plot([p[0] for p in path], [p[1] for p in path], 'r-', linewidth=2, label='Original Path')
 
     # Smooth the path
+    time2 = time.time()
     smoothed_path = smooth_path(path)
+    print("2. --- %s seconds ---" % (time.time() - time2))
     plt.plot([p[0] for p in smoothed_path], [p[1] for p in smoothed_path], 'b--', linewidth=2,
              label='Smoothed Path')
-
-    # Simplify the path
-    simplified_path = simplify_path(smoothed_path)
-    plt.plot([p[0] for p in simplified_path], [p[1] for p in simplified_path], 'g--', linewidth=2,
-             label='Simplified Path')
 
     # Set the x and y axis limits
     plt.xlim(0, grid_size)
@@ -201,14 +164,11 @@ def visualize_environment(path):
 
     # Show the plot
     plt.show()
-    # plt.savefig("./plots/" + str(img) + '.png')
-    plt.close()
 
 
 # Run the A* algorithm
 path = astar_algorithm()
 print("1. --- %s seconds ---" % (time.time() - start_time))
+
 # Visualize the environment and path
 visualize_environment(path)
-print("2. --- %s seconds ---" % (time.time() - start_time))
-
